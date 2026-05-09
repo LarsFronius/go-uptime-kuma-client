@@ -520,6 +520,19 @@ func New(ctx context.Context, baseURL string, username string, password string, 
 		return nil, fmt.Errorf("connect to server: %w", err)
 	}
 
+	// The socket.io client is now connected. On any subsequent error path
+	// the caller receives no *Client handle and therefore cannot call
+	// Disconnect themselves. Trigger a non-blocking close in a separate
+	// goroutine so New() returns promptly; the goroutine will finish once
+	// the caller's ctx is cancelled.  Cleared to false on the success path
+	// so the caller takes ownership.
+	closeOnErr := true
+	defer func() {
+		if closeOnErr {
+			go func() { _ = c.Disconnect() }()
+		}
+	}()
+
 	if username != "" && password != "" {
 		_, err = c.syncEmit(
 			ctxWithConnectTimeout,
@@ -548,6 +561,7 @@ func New(ctx context.Context, baseURL string, username string, password string, 
 	for {
 		select {
 		case <-ready:
+			closeOnErr = false
 			return c, nil
 
 		case <-setupRequired:
