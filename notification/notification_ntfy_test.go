@@ -44,6 +44,38 @@ func TestNotificationNtfy_Unmarshal(t *testing.T) {
 			},
 			wantJSON: `{"active":true,"applyExisting":true,"id":1,"isDefault":true,"name":"My Ntfy Alert","ntfyAuthenticationMethod":"usernamePassword","ntfyIcon":"http://symbol.url","ntfyPriority":5,"ntfyaccesstoken":"","ntfypassword":"password","ntfyserverurl":"https://ntfy.sh","ntfytopic":"topic","ntfyusername":"user","type":"ntfy","userId":1}`,
 		},
+		{
+			name: "with template, call and priority down",
+			data: []byte(
+				`{"id":2,"name":"My Ntfy Alert","active":true,"userId":1,"isDefault":true,"config":"{\"applyExisting\":true,\"isDefault\":true,\"name\":\"My Ntfy Alert\",\"ntfyAuthenticationMethod\":\"usernamePassword\",\"ntfyCall\":\"+12223334444\",\"ntfyCustomMessage\":\"custom message\",\"ntfyCustomTitle\":\"custom title\",\"ntfyIcon\":\"http://symbol.url\",\"ntfyPriority\":3,\"ntfyPriorityDown\":5,\"ntfyUseTemplate\":true,\"ntfypassword\":\"password\",\"ntfyserverurl\":\"https://ntfy.sh\",\"ntfytopic\":\"topic\",\"ntfyusername\":\"user\",\"type\":\"ntfy\"}"}`,
+			),
+
+			want: notification.Ntfy{
+				Base: notification.Base{
+					ID:            2,
+					Name:          "My Ntfy Alert",
+					IsActive:      true,
+					UserID:        1,
+					IsDefault:     true,
+					ApplyExisting: true,
+				},
+				NtfyDetails: notification.NtfyDetails{
+					AuthenticationMethod: "usernamePassword",
+					Call:                 "+12223334444",
+					CustomMessage:        "custom message",
+					CustomTitle:          "custom title",
+					Icon:                 "http://symbol.url",
+					Priority:             3,
+					PriorityDown:         5,
+					UseTemplate:          true,
+					Password:             "password",
+					ServerURL:            "https://ntfy.sh",
+					Topic:                "topic",
+					Username:             "user",
+				},
+			},
+			wantJSON: `{"active":true,"applyExisting":true,"id":2,"isDefault":true,"name":"My Ntfy Alert","ntfyAuthenticationMethod":"usernamePassword","ntfyCall":"+12223334444","ntfyCustomMessage":"custom message","ntfyCustomTitle":"custom title","ntfyIcon":"http://symbol.url","ntfyPriority":3,"ntfyPriorityDown":5,"ntfyUseTemplate":true,"ntfyaccesstoken":"","ntfypassword":"password","ntfyserverurl":"https://ntfy.sh","ntfytopic":"topic","ntfyusername":"user","type":"ntfy","userId":1}`,
+		},
 	}
 
 	for _, tc := range tests {

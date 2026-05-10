@@ -56,6 +56,11 @@ func TestNotificationCRUD(t *testing.T) {
 				ntfy.Username = "testuser"
 				ntfy.Password = "testpass"
 				ntfy.Priority = 3
+				ntfy.PriorityDown = 5
+				ntfy.Call = "+12223334444"
+				ntfy.UseTemplate = true
+				ntfy.CustomTitle = "{{ name }} is {{ status }}"
+				ntfy.CustomMessage = "{{ msg }}"
 			},
 			verifyCreatedFunc: func(t *testing.T, actual notification.Notification, expected notification.Notification, id int64) {
 				t.Helper()
