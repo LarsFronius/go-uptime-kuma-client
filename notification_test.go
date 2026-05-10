@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/breml/go-uptime-kuma-client/internal/ptr"
 	"github.com/breml/go-uptime-kuma-client/notification"
 )
 
@@ -56,6 +57,11 @@ func TestNotificationCRUD(t *testing.T) {
 				ntfy.Username = "testuser"
 				ntfy.Password = "testpass"
 				ntfy.Priority = 3
+				ntfy.PriorityDown = 5
+				ntfy.Call = ptr.To("+12223334444")
+				ntfy.UseTemplate = ptr.To(true)
+				ntfy.CustomTitle = ptr.To("{{ name }} is {{ status }}")
+				ntfy.CustomMessage = ptr.To("{{ msg }}")
 			},
 			verifyCreatedFunc: func(t *testing.T, actual notification.Notification, expected notification.Notification, id int64) {
 				t.Helper()
