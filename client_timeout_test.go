@@ -143,5 +143,7 @@ func TestNewConnectTimeoutDuringReadyWait(t *testing.T) {
 
 	require.Error(t, err)
 	require.ErrorIs(t, err, context.DeadlineExceeded, "error should wrap context.DeadlineExceeded, got: %v", err)
+	require.ErrorContains(t, err, "missing events:", "error should list the still-missing ready events")
+	require.ErrorContains(t, err, "apiKeyList", "apiKeyList should appear in the missing events list")
 	require.Less(t, elapsed, 2*timeout, "New() should return within 2x timeout, took %s", elapsed)
 }
