@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -303,10 +304,18 @@ func New(ctx context.Context, baseURL string, username string, password string, 
 	}
 
 	ctxWithConnectTimeout := ctx
+
+	// connectTimeoutDone is non-nil only when WithConnectTimeout is
+	// configured. Using nil keeps the ready-wait select deterministic when
+	// ctxWithConnectTimeout and ctx are the same context (no timeout set).
+	var connectTimeoutDone <-chan struct{}
+
 	if c.socketioClientConnectTimeout != 0 {
 		var cancel func()
 		ctxWithConnectTimeout, cancel = context.WithTimeout(ctx, c.socketioClientConnectTimeout)
 		defer cancel()
+
+		connectTimeoutDone = ctxWithConnectTimeout.Done()
 	}
 
 	// Handle database setup for Uptime Kuma v2 if autosetup is enabled
@@ -511,6 +520,23 @@ func New(ctx context.Context, baseURL string, username string, password string, 
 		return nil, fmt.Errorf("connect to server: %w", err)
 	}
 
+	// The socket.io client is now connected. On any subsequent error path
+	// the caller receives no *Client handle and therefore cannot call
+	// Disconnect themselves. Trigger a best-effort async close so that
+	// goroutines and connections are eventually cleaned up.
+	// Cleared to false on the success path so the caller takes ownership.
+	closeOnErr := true
+	defer func() {
+		if closeOnErr {
+			go func() {
+				disconnectErr := c.Disconnect()
+				if disconnectErr != nil {
+					c.socketioLogger.Errorf("disconnect after New() error: %s", disconnectErr)
+				}
+			}()
+		}
+	}()
+
 	if username != "" && password != "" {
 		_, err = c.syncEmit(
 			ctxWithConnectTimeout,
@@ -539,6 +565,7 @@ func New(ctx context.Context, baseURL string, username string, password string, 
 	for {
 		select {
 		case <-ready:
+			closeOnErr = false
 			return c, nil
 
 		case <-setupRequired:
@@ -564,6 +591,40 @@ func New(ctx context.Context, baseURL string, username string, password string, 
 
 		case <-ctx.Done():
 			return nil, fmt.Errorf("wait for ready: %w", ctx.Err())
+
+		case <-connectTimeoutDone:
+			// ctxWithConnectTimeout is derived from ctx, so its Done channel
+			// closes whenever the parent ctx is cancelled too. Prefer the
+			// parent's error in that case to avoid a misleading
+			// "missing events" message on an ordinary cancellation.
+			if ctx.Err() != nil {
+				return nil, fmt.Errorf("wait for ready: %w", ctx.Err())
+			}
+
+			// If all ready events arrived at the exact same instant as the
+			// timeout, prefer the success path over the error path.
+			select {
+			case <-ready:
+				closeOnErr = false
+				return c, nil
+
+			default:
+			}
+
+			updateSeenMu.Lock()
+			missing := make([]string, 0, len(updateSeen))
+			for event := range updateSeen {
+				missing = append(missing, event)
+			}
+			updateSeenMu.Unlock()
+
+			sort.Strings(missing)
+
+			return nil, fmt.Errorf(
+				"wait for ready: %w (missing events: %s)",
+				ctxWithConnectTimeout.Err(),
+				strings.Join(missing, ", "),
+			)
 		}
 	}
 }
