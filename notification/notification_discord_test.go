@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/breml/go-uptime-kuma-client/internal/ptr"
 	"github.com/breml/go-uptime-kuma-client/notification"
 )
 
@@ -106,7 +107,7 @@ func TestNotificationDiscord_Unmarshal(t *testing.T) {
 				},
 				DiscordDetails: notification.DiscordDetails{
 					WebhookURL:            "https://discordapp.com/api/webhooks/silent/webhook",
-					SuppressNotifications: true,
+					SuppressNotifications: ptr.To(true),
 				},
 			},
 			wantJSON: `{"active":true,"applyExisting":false,"disableUrl":false,"discordChannelType":"","discordPrefixMessage":"","discordSuppressNotifications":true,"discordUsername":"","discordWebhookUrl":"https://discordapp.com/api/webhooks/silent/webhook","id":4,"isDefault":false,"name":"Silent Discord","postName":"","threadId":"","type":"discord","userId":1}`,
@@ -128,7 +129,7 @@ func TestNotificationDiscord_Unmarshal(t *testing.T) {
 				},
 				DiscordDetails: notification.DiscordDetails{
 					WebhookURL:    "https://discordapp.com/api/webhooks/min/webhook",
-					MessageFormat: "minimalist",
+					MessageFormat: ptr.To("minimalist"),
 				},
 			},
 			wantJSON: `{"active":true,"applyExisting":false,"disableUrl":false,"discordChannelType":"","discordMessageFormat":"minimalist","discordPrefixMessage":"","discordUsername":"","discordWebhookUrl":"https://discordapp.com/api/webhooks/min/webhook","id":5,"isDefault":false,"name":"Minimalist Discord","postName":"","threadId":"","type":"discord","userId":1}`,
@@ -150,8 +151,8 @@ func TestNotificationDiscord_Unmarshal(t *testing.T) {
 				},
 				DiscordDetails: notification.DiscordDetails{
 					WebhookURL:      "https://discordapp.com/api/webhooks/custom/webhook",
-					MessageFormat:   "custom",
-					MessageTemplate: "Service {{name}} is {{status}}",
+					MessageFormat:   ptr.To("custom"),
+					MessageTemplate: ptr.To("Service {{name}} is {{status}}"),
 				},
 			},
 			wantJSON: `{"active":true,"applyExisting":false,"disableUrl":false,"discordChannelType":"","discordMessageFormat":"custom","discordMessageTemplate":"Service {{name}} is {{status}}","discordPrefixMessage":"","discordUsername":"","discordWebhookUrl":"https://discordapp.com/api/webhooks/custom/webhook","id":6,"isDefault":false,"name":"Custom Discord","postName":"","threadId":"","type":"discord","userId":1}`,
@@ -173,8 +174,8 @@ func TestNotificationDiscord_Unmarshal(t *testing.T) {
 				},
 				DiscordDetails: notification.DiscordDetails{
 					WebhookURL:         "https://discordapp.com/api/webhooks/legacy/webhook",
-					UseMessageTemplate: true,
-					MessageTemplate:    "Alert: {{name}}",
+					UseMessageTemplate: ptr.To(true),
+					MessageTemplate:    ptr.To("Alert: {{name}}"),
 				},
 			},
 			wantJSON: `{"active":true,"applyExisting":false,"disableUrl":false,"discordChannelType":"","discordMessageTemplate":"Alert: {{name}}","discordPrefixMessage":"","discordUseMessageTemplate":true,"discordUsername":"","discordWebhookUrl":"https://discordapp.com/api/webhooks/legacy/webhook","id":7,"isDefault":false,"name":"Legacy Template Discord","postName":"","threadId":"","type":"discord","userId":1}`,
