@@ -17,10 +17,15 @@ type SerwerSMSDetails struct {
 	Username string `json:"serwersmsUsername"`
 	// Password is the SerwerSMS account password.
 	Password string `json:"serwersmsPassword"`
-	// PhoneNumber is the recipient phone number.
+	// PhoneNumber is the recipient phone number. Used when RecipientType is "number".
 	PhoneNumber string `json:"serwersmsPhoneNumber"`
 	// SenderName is the sender name or identifier.
 	SenderName string `json:"serwersmsSenderName"`
+	// RecipientType selects how the message recipient is addressed.
+	// Allowed values are "number" (default) and "group".
+	RecipientType string `json:"serwersmsRecipientType,omitempty"`
+	// GroupID is the SerwerSMS recipient group identifier. Used when RecipientType is "group".
+	GroupID string `json:"serwersmsGroupId,omitempty"`
 }
 
 // Type returns the notification type identifier for SerwerSMS.
