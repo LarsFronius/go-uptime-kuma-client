@@ -89,6 +89,57 @@ func TestNotificationSerwerSMS_Unmarshal(t *testing.T) {
 			},
 			wantJSON: `{"active":false,"applyExisting":false,"id":3,"isDefault":false,"name":"SerwerSMS International","serwersmsPassword":"intlpass","serwersmsPhoneNumber":"358501234567","serwersmsSenderName":"GlobalAlert","serwersmsUsername":"intluser","type":"serwersms","userId":1}`,
 		},
+		{
+			name: "with recipient type number",
+			data: []byte(
+				`{"id":4,"name":"SerwerSMS Number","active":true,"userId":1,"isDefault":false,"config":"{\"applyExisting\":false,\"isDefault\":false,\"name\":\"SerwerSMS Number\",\"serwersmsUsername\":\"numuser\",\"serwersmsPassword\":\"numpass\",\"serwersmsPhoneNumber\":\"48111222333\",\"serwersmsSenderName\":\"NumAlert\",\"serwersmsRecipientType\":\"number\",\"type\":\"serwersms\"}"}`,
+			),
+
+			want: notification.SerwerSMS{
+				Base: notification.Base{
+					ID:            4,
+					Name:          "SerwerSMS Number",
+					IsActive:      true,
+					UserID:        1,
+					IsDefault:     false,
+					ApplyExisting: false,
+				},
+				SerwerSMSDetails: notification.SerwerSMSDetails{
+					Username:      "numuser",
+					Password:      "numpass",
+					PhoneNumber:   "48111222333",
+					SenderName:    "NumAlert",
+					RecipientType: "number",
+				},
+			},
+			wantJSON: `{"active":true,"applyExisting":false,"id":4,"isDefault":false,"name":"SerwerSMS Number","serwersmsPassword":"numpass","serwersmsPhoneNumber":"48111222333","serwersmsRecipientType":"number","serwersmsSenderName":"NumAlert","serwersmsUsername":"numuser","type":"serwersms","userId":1}`,
+		},
+		{
+			name: "with recipient type group",
+			data: []byte(
+				`{"id":5,"name":"SerwerSMS Group","active":true,"userId":1,"isDefault":false,"config":"{\"applyExisting\":false,\"isDefault\":false,\"name\":\"SerwerSMS Group\",\"serwersmsUsername\":\"grpuser\",\"serwersmsPassword\":\"grppass\",\"serwersmsPhoneNumber\":\"\",\"serwersmsSenderName\":\"GroupAlert\",\"serwersmsRecipientType\":\"group\",\"serwersmsGroupId\":\"42\",\"type\":\"serwersms\"}"}`,
+			),
+
+			want: notification.SerwerSMS{
+				Base: notification.Base{
+					ID:            5,
+					Name:          "SerwerSMS Group",
+					IsActive:      true,
+					UserID:        1,
+					IsDefault:     false,
+					ApplyExisting: false,
+				},
+				SerwerSMSDetails: notification.SerwerSMSDetails{
+					Username:      "grpuser",
+					Password:      "grppass",
+					PhoneNumber:   "",
+					SenderName:    "GroupAlert",
+					RecipientType: "group",
+					GroupID:       "42",
+				},
+			},
+			wantJSON: `{"active":true,"applyExisting":false,"id":5,"isDefault":false,"name":"SerwerSMS Group","serwersmsGroupId":"42","serwersmsPassword":"grppass","serwersmsPhoneNumber":"","serwersmsRecipientType":"group","serwersmsSenderName":"GroupAlert","serwersmsUsername":"grpuser","type":"serwersms","userId":1}`,
+		},
 	}
 
 	for _, tc := range tests {
