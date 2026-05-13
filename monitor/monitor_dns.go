@@ -88,12 +88,21 @@ func (d DNS) MarshalJSON() ([]byte, error) {
 	return data, nil
 }
 
+type Condition struct {
+	Type     string `json:"type"`
+	AndOr    string `json:"andOr"`
+	Variable string `json:"variable"`
+	Operator string `json:"operator"`
+	Value    string `json:"value"`
+}
+
 // DNSDetails contains DNS-specific monitor configuration.
 type DNSDetails struct {
 	Hostname       string         `json:"hostname"`
 	ResolverServer string         `json:"dns_resolve_server"`
 	ResolveType    DNSResolveType `json:"dns_resolve_type"`
 	Port           int            `json:"port"`
+	Conditions     []Condition    `json:"conditions"`
 }
 
 // Type returns the monitor type.

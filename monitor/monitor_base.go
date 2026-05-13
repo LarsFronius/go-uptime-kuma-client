@@ -21,14 +21,6 @@ type Monitor interface {
 	GetNotificationIDs() []int64
 }
 
-type Condition struct {
-	Type     string `json:"type"`
-	AndOr    string `json:"andOr"`
-	Variable string `json:"variable"`
-	Operator string `json:"operator"`
-	Value    string `json:"value"`
-}
-
 // Base contains the common fields for all monitor types.
 type Base struct {
 	ID              int64            `json:"id"`
@@ -45,7 +37,6 @@ type Base struct {
 	NotificationIDs []int64          `json:"-"`
 	Tags            []tag.MonitorTag `json:"tags"`
 	IsActive        bool             `json:"active"`
-	Conditions      []Condition     `json:"conditions"`
 
 	internalType string
 	raw          []byte
