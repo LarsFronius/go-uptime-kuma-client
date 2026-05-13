@@ -78,7 +78,11 @@ func (d DNS) MarshalJSON() ([]byte, error) {
 	// Server expects these fields to be arrays and not null.
 	raw["accepted_statuscodes"] = []string{}
 
-	raw["conditions"] = d.Conditions
+	if d.Conditions == nil {
+		raw["conditions"] = []any{}
+	} else {
+		raw["conditions"] = d.Conditions
+	}
 
 	data, err := json.Marshal(raw)
 	if err != nil {
