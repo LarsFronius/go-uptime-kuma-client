@@ -92,6 +92,7 @@ func (d DNS) MarshalJSON() ([]byte, error) {
 	return data, nil
 }
 
+// Condition carries the information that allow setting a condition on the monitor.
 type Condition struct {
 	Type     string `json:"type"`
 	AndOr    string `json:"andOr"`
